@@ -1,0 +1,20 @@
+<ion-view title="Home">
+  <ion-nav-buttons>
+    <button class="button button-icon icon icon-back" ng-click="back()"></button>
+  </ion-nav-buttons>
+
+  <ion-nav-buttons side="secondary">
+    <button class="button button-icon icon unlock" ng-click="logout()"></button>
+  </ion-nav-buttons>
+  <ion-content scroll="false">
+    <canvas id="c" class="maincanvas"> </canvas>
+
+    <button ng-click="button()" class="button button-block button-positive">
+      Block Button
+    </button>
+    <button ng-click="reload()" class="button button-block button-positive">
+      Reload
+    </button>
+
+  </ion-content>
+</ion-view>
