@@ -1,19 +1,17 @@
 <ion-view title="Home">
-  <ion-nav-buttons>
-    <button class="button button-icon icon icon-back" ng-click="back()"></button>
-  </ion-nav-buttons>
+<ion-nav-buttons side="right">
+      <button class="button" ng-click="post()"">
+        Post
+      </button>
+    </ion-nav-buttons>
+    <ion-content scroll="false">
+        <canvas id="c" class="maincanvas"> </canvas>
 
-  <ion-nav-buttons side="secondary">
-    <button class="button button-icon icon unlock" ng-click="logout()"></button>
-  </ion-nav-buttons>
-  <ion-content scroll="false">
-    <canvas id="c" class="maincanvas"> </canvas>
-
-    <button ng-click="button()" class="button button-block button-positive">
-      Block Button
+    <button ng-click="post()" class="button button-block button-positive">
+Post
     </button>
-    <button ng-click="reload()" class="button button-block button-positive">
-      Reload
+     <button ng-click="takePicture()" class="button button-block button-positive">
+	Photo
     </button>
 
   </ion-content>

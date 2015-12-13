@@ -1,0 +1,13 @@
+<ion-view title="Message">
+
+  <ion-content scroll="false">
+
+    <label class="item item-input" >
+      <textarea placeholder="Insert your message" ng-model="message" ng-enter="done(message)"></textarea>
+    </label>
+
+<button class="button button-outline button-balanced" ng-click="done(message)">
+  Done
+</button>
+  </ion-content>
+</ion-view>

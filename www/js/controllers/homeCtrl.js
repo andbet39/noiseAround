@@ -1,82 +1,164 @@
 angular.module('starter')
-  .controller('HomeCtrl',function ($scope,$state,$ionicPopup,$location, $state) {
+  .controller('HomeCtrl',function ($scope,$state,$ionicPopup,$location,$ionicModal,$ionicViewService, $state,$stateParams,$cordovaCamera) {
 
 
-    c = document.getElementById('c');
+    $scope.message = $stateParams.message;
 
-    var size = window.innerWidth;
+    console.log($stateParams);
 
-    c.width = size;
-    c.height = size;//window.innerHeight-200;
-
-
-
-    var canvas = new fabric.Canvas("c");
-
-
-
-
-  $scope.init = function(){
-
-
-
+  $scope.goBack = function(){
+    $ionicHistory.goBack();
   };
 
-    $scope.init();
+    $scope.reloadCanvas = function(image){
 
-    $scope.back = function () {
-      $ionicHistory.goBack();
-    };
+      $scope.canvas.clear();
 
-    $scope.button = function () {
+      fabric.Image.fromURL(image, function(oImg) {
 
-      canvas.clear();
+        oImg.scaleToWidth($scope.canvas.width);
+        oImg.hasBorders=false;
+        oImg.hasControls =false;
+        oImg.hasRotatingPoint= false;
 
-     fabric.Image.fromURL('/img/prova.jpg', function(oImg) {
-        // scale image down, and flip it, before adding it onto canvas
-        oImg.scaleToHeight(canvas.height);
+        $scope.canvas.setBackgroundImage(oImg);
 
-        canvas.setBackgroundImage(oImg);
-        canvas.renderAll();
+        $scope.canvas.renderAll();
       });
 
 
-      var text =  new fabric.Text('Ciao brutto ricchione frocio del cazzo pezzo di merda', {
-        fontFamily: 'arial black',
-        fontSize:25,
-        left: canvas.width/2,
-        top: canvas.height/2 ,
+      var text =  new fabric.Text($scope.message, {
+        fontFamily: 'LatoWebHeavy',
+        fontSize:30,
+        left: $scope.canvas.width/2,
+        top: $scope.canvas.height/2 ,
         hasBorders: false,
         hasControls: false,
         hasRotatingPoint: false
       });
 
-      $scope.formatted = wrapCanvasText(text,canvas,canvas.width-50,canvas.height,'center');
+      $scope.formatted = wrapCanvasText(text,$scope.canvas,$scope.canvas.width-50,$scope.canvas.height,'center');
 
-      $scope.formatted.fill = '#000000';
+      $scope.formatted.fill = '#efefef';
 
-      canvas.add($scope.formatted);
+      $scope.canvas.add($scope.formatted);
 
       $scope.formatted.centerV();
       $scope.formatted.centerH();
 
+      $scope.formatted.stroke = '#000000';
+      $scope.formatted.strokeWidth =  1;
 
+      $scope.canvas.renderAll();
+
+    };
+
+    $scope.create = function () {
+
+        c = document.getElementById('c');
+        var size = window.innerWidth;
+
+        c.width = size;
+        c.height = size;//window.innerHeight-200;
+
+
+        $scope.canvas = new fabric.Canvas("c");
+        $scope.canvas.allowTouchScrolling= false;
+
+
+          $scope.reloadCanvas('img/bg1.jpg');
 
     };
 
 
-    $scope.reload = function(){
-      console.log("reload");
-      $scope.formatted.colo
-      $scope.formatted.stroke = '#efefef';
-      $scope.formatted.strokeWidth =  1;
+    $scope.create();
 
-      canvas.renderAll();
 
-    }
+    $scope.post = function (){
+
+
+      var imgData = $scope.canvas.toDataURL('png');
+      console.log(imgData);
+
+
+      var file = new Parse.File("image.png", { base64: imgData });
+
+      file.save().then(function() {
+
+        var post = new Parse.Object("Post");
+            post.set("message", $scope.message);
+            post.set("file", file);
+            post.save();
+
+            $ionicViewService.nextViewOptions({
+            disableBack: true
+            });
+
+            $state.go('stream');
+
+      }, function(error) {
+
+
+      });
+    };
+
+
+
+
+    $scope.takePicture = function() {
+        console.log("Take picture");
+
+            var options = {
+                quality: 75,
+                destinationType: Camera.DestinationType.DATA_URL,
+                sourceType: Camera.PictureSourceType.CAMERA, //$scope.sourceType, //Camera.PictureSourceType.CAMERA,//Camera.PictureSourceType.LIBRARY,
+                allowEdit: false,
+                encodingType: Camera.EncodingType.JPEG,
+                targetWidth: 1000,
+                targetHeight: 1000,
+                popoverOptions: CameraPopoverOptions,
+                saveToPhotoAlbum: false,
+                correctOrientation:true
+            };
+
+
+
+            $cordovaCamera.getPicture(options).then(function(imageData) {
+                 var imageURI= "data:image/jpeg;base64," + imageData;
+
+                $scope.reloadCanvas(imageURI);
+
+             });
+        };
+
+
 
 
   });
+
+
+
+
+//// FINE DEL CONTROLLER
+////////////////////////////////////
+
+angular.module('starter').factory('Camera', ['$q', function($q) {
+
+  return {
+    getPicture: function(options) {
+      var q = $q.defer();
+
+      navigator.camera.getPicture(function(result) {
+        // Do any magic you need
+        q.resolve(result);
+      }, function(err) {
+        q.reject(err);
+      }, options);
+
+      return q.promise;
+    }
+  }
+}]);
 
 
 function wrapCanvasText(t, canvas, maxW, maxH, justify) {
